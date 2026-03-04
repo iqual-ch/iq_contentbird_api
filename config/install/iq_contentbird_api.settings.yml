@@ -1,9 +1,3 @@
 api_token: ''
 api_base_url: 'https://api.live.mycontentbird.io/api/cms'
 webhook_secret: ''
-api_endpoints:
-  content_statuses: '/content-statuses'
-  custom_elements: '/custom-elements'
-  custom_fields: '/custom-fields'
-  content: '/contents'
-  social_post: '/social-posts'
