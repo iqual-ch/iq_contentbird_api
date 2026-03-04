@@ -62,7 +62,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function request(string $method, string $endpoint, ?int $project_id = NULL, ?array $query = NULL, ?array $body = NULL): mixed {
+  public function request(string $method, string $endpoint, ?array $body = NULL, ?array $headers = NULL): mixed {
     $apiToken = $this->config->get('api_token');
 
     if (empty($apiToken)) {
@@ -70,20 +70,18 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
       return FALSE;
     }
 
+    $headersDefaults = [
+      'X-ContentbirdApiToken' => 'Bearer ' . $apiToken,
+      'Content-Type' => 'application/json',
+      'Accept' => 'application/json',
+    ];
+    $headers = array_merge($headersDefaults, $headers ?? []);
     $request_options = [
-      RequestOptions::HEADERS => [
-        'X-ContentbirdApiToken' => 'Bearer ' . $apiToken,
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/json',
-      ],
+      RequestOptions::HEADERS => $headers,
     ];
 
     if (!empty($body)) {
       $request_options[RequestOptions::BODY] = json_encode($body);
-    }
-
-    if (!empty($query)) {
-      $request_options[RequestOptions::QUERY] = $query;
     }
 
     try {
@@ -141,12 +139,16 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEndpointUrl(string $endpoint_name, ?int $project_id = NULL): string {
+  public function getEndpointUrl(string $endpoint_name, ?array $params = NULL): string {
     $base = rtrim($this->config->get('api_base_url'), '/');
-    if ($project_id !== NULL) {
-      $endpoint_name = str_replace('{projectId}', $project_id, $endpoint_name);
+    if ($params !== NULL) {
+      foreach ($params as $key => $value) {
+        if ($value !== NULL) {
+          $endpoint_name = str_replace('{' . $key . '}', $value, $endpoint_name);
+        }
+      }
     }
-    return $base . $endpoint_name;
+    return $base . '/' . $endpoint_name;
   }
 
   // ---------------------------------------------------------------------------
@@ -156,22 +158,22 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getListOfIds(): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-ids'));
+  public function getListOfIds(string $language = 'en'): mixed {
+    return $this->request('GET', $this->getEndpointUrl('get-ids'), [], ['X-ContentbirdLocale' => $language]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getProjectKeywords(int $project_id): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', $project_id));
+  public function getProjectKeywords(int $project_id, string $language = 'en'): mixed {
+    return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', ['projectId' => $project_id]), [], ['X-ContentbirdLocale' => $language]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getProjectSocialProfiles(int $project_id): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-social-profiles/{projectId}', $project_id));
+  public function getProjectSocialProfiles(int $project_id, string $language = 'en'): mixed {
+    return $this->request('GET', $this->getEndpointUrl('get-social-profiles/{projectId}', ['projectId' => $project_id]), [], ['X-ContentbirdLocale' => $language]);
   }
 
   // ---------------------------------------------------------------------------
@@ -181,50 +183,67 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getContent(int $content_id): mixed {
-    $url = $this->getEndpointUrl('content') . '/' . $content_id;
-    return $this->request('GET', $url);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getContents(array $query = []): mixed {
-    return $this->request('GET', $this->getEndpointUrl('content'), $query);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function createContent(array $data): mixed {
-    return $this->request('POST', $this->getEndpointUrl('content'), NULL, $data);
+    return $this->request('POST', $this->getEndpointUrl('create-content'), $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getContents(array $filters = []): mixed {
+    return $this->request('POST', $this->getEndpointUrl('get-contents'),  $filters);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getContent(int $content_id, string $language = 'en'): mixed {
+    $url = $this->getEndpointUrl('get-content/{contentId}', ['contentId' => $content_id]);
+    return $this->request('GET', $url, [], ['X-ContentbirdLocale' => $language]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function updateContent(int $content_id, array $data): mixed {
-    $url = $this->getEndpointUrl('content') . '/' . $content_id;
-    return $this->request('PUT', $url, NULL, $data);
+    $url = $this->getEndpointUrl('update-content/{contentId}', ['contentId' => $content_id]);
+    return $this->request('PUT', $url, $data);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function updateContentStatus(int $content_id, int $status_id, ?string $published_url = NULL, ?string $published_at = NULL): mixed {
+  public function publishContent(int $content_id, string $published_url, string $published_at, ?float $cost = NULL, ?int $status_id = NULL): mixed {
     $data = [
-      'contentStatusId' => $status_id,
+      'url' => $published_url,
+      'publishedDate' => $published_at,
     ];
-
-    if ($published_url !== NULL) {
-      $data['publishedUrl'] = $published_url;
+    if ($cost !== NULL) {
+      $data['cost'] = $cost;
+    }
+    if ($status_id !== NULL) {
+      $data['status'] = $status_id;
     }
 
-    if ($published_at !== NULL) {
-      $data['publishedAt'] = $published_at;
-    }
+    return $this->request('PUT', $this->getEndpointUrl('publish-content/{contentId}', ['contentId' => $content_id]), $data);
+  }
 
-    return $this->updateContent($content_id, $data);
+  /**
+   * {@inheritdoc}
+   */
+  public function unpublishContent(int $content_id, ?int $status_id = NULL): mixed {
+    $params = [
+      'contentId' => $content_id,
+      'statusId' => $status_id,
+    ];
+    return $this->request('PUT', $this->getEndpointUrl('update-content-status/{contentId}/status/{statusId}', $params), $params);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createContentVersion(int $content_id, array $data): mixed {
+    return $this->request('POST', $this->getEndpointUrl('create-content-version/{contentId}', ['contentId' => $content_id]), $data);
   }
 
   // ---------------------------------------------------------------------------
@@ -235,7 +254,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
    * {@inheritdoc}
    */
   public function createSocialPost(array $data): mixed {
-    return $this->request('POST', $this->getEndpointUrl('social_post'), NULL, $data);
+    return $this->request('POST', $this->getEndpointUrl('create-social-post'), $data);
   }
 
   // ---------------------------------------------------------------------------

@@ -16,30 +16,28 @@ interface ContentbirdApiClientInterface {
    *   The HTTP method (GET, POST, PUT, PATCH, DELETE).
    * @param string $endpoint
    *   The full API endpoint URL.
-   * @param int|null $project_id
-   *   Optional project ID for project-specific requests.
-   * @param array|null $query
-   *   Optional query parameters.
    * @param array|null $body
    *   Optional request body (will be JSON-encoded).
+   * @param array|null $headers
+   *   Optional additional headers to include in the request.
    *
    * @return mixed
    *   The decoded JSON response data, or FALSE on failure.
    */
-  public function request(string $method, string $endpoint, ?int $project_id = NULL, ?array $query = NULL, ?array $body = NULL): mixed;
+  public function request(string $method, string $endpoint, ?array $body = NULL, ?array $headers = NULL): mixed;
 
   /**
    * Gets the full URL for a named API endpoint.
    *
    * @param string $endpoint_name
    *   The endpoint name as configured (e.g. 'get-ids', 'get-keywords/{projectId}').
-   * @param int|null $project_id
-   *   Optional project ID to replace in the endpoint path if needed.
-   *
+   * @param array|null $params
+   *   Optional parameters to replace in the endpoint path if needed.
+   * 
    * @return string
    *   The full URL for the endpoint.
    */
-  public function getEndpointUrl(string $endpoint_name, ?int $project_id = NULL): string;
+  public function getEndpointUrl(string $endpoint_name, ?array $params = NULL): string;
 
   // ---------------------------------------------------------------------------
   // Utils
@@ -48,58 +46,43 @@ interface ContentbirdApiClientInterface {
   /**
    * Retrieves a list of all IDs the contentbird platform is using for relations.
    *
+   * @param string $language
+   *   The language code for the data (e.g. 'en').
+   * 
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function getListOfIds(): mixed;
+  public function getListOfIds(string $language = 'en'): mixed;
 
   /**
    * Retrieves a list of all keywords (including metrics) of the given project.
    * 
    * @param int $project_id
    *   The contentbird project ID.
+   * @param string $language
+   *   The language code for the data (e.g. 'en').
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function getProjectKeywords(int $project_id): mixed;
+  public function getProjectKeywords(int $project_id, string $language = 'en'): mixed;
 
   /**
    * Retrieves a list of all active connected social profiles of the given project.
    * 
    * @param int $project_id
    *   The contentbird project ID.
+   * @param string $language
+   *   The language code for the data (e.g. 'en').
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function getProjectSocialProfiles(int $project_id): mixed;
+  public function getProjectSocialProfiles(int $project_id, string $language = 'en'): mixed;
 
   // ---------------------------------------------------------------------------
   // Content operations
   // ---------------------------------------------------------------------------
-
-  /**
-   * Fetches a single content item by its contentbird ID.
-   *
-   * @param int $content_id
-   *   The contentbird content ID.
-   *
-   * @return mixed
-   *   The decoded response data, or FALSE on failure.
-   */
-  public function getContent(int $content_id): mixed;
-
-  /**
-   * Fetches multiple content items, optionally filtered.
-   *
-   * @param array $query
-   *   Optional query parameters for filtering (e.g. status, page, limit).
-   *
-   * @return mixed
-   *   The decoded response data, or FALSE on failure.
-   */
-  public function getContents(array $query = []): mixed;
 
   /**
    * Creates a new content item in contentbird.
@@ -107,10 +90,32 @@ interface ContentbirdApiClientInterface {
    * @param array $data
    *   The content data. Expected keys may include:
    *   - title: (string) The content title.
+   *   - project_id: (int) The contentbird project ID to associate with.
+   *   - type_id: (int) The content type ID.
+   *   - language: (string) The content language (e.g. 'en').
+   *   - status_id: (int) The initial content status ID.
+   *   - release_date: (string) The release date in ISO-8601 format.
+   *   - manager_user_id: (int) The user ID of the content manager.
+   *   - author_user_id: (int) The user ID of the content author.
+   *   - story_id: (int) The story ID to associate with.
+   *   - briefing: (string) The content briefing.
+   *   - keyword_ids: (array) An array of keyword IDs to associate with.
+   *   - resources_files: (array) An array of file resource data. Each item should have:
+   *    - name: (string) The file name.
+   *    - url: (string) The file URL.
+   *   - resources_urls: (array) An array of URL resource data. Each item should have:
+   *    - name: (string) The resource name.
+   *    - url: (string) The resource URL.
+   *   - persona_id: (int) The persona ID to associate with.
+   *   - content_target_id: (int) The content target ID to associate with.
+   *   - call_to_action_id: (int) The call to action ID to associate with.
    *   - content: (string) The HTML content body.
-   *   - contentStatusId: (int) The content status ID.
-   *   - customElements: (array) Custom element data.
-   *   - customFields: (array) Custom field data.
+   *   - customFields: (array) Custom field data. Each item should have:
+   *    - id: (int) The custom field ID.
+   *    - value: (mixed) The value for the custom field.
+   *   - customElements: (array) Custom element data. Each item should have:
+   *    - id: (int) The custom element ID.
+   *    - value: (mixed) The value for the custom element.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
@@ -118,19 +123,36 @@ interface ContentbirdApiClientInterface {
   public function createContent(array $data): mixed;
 
   /**
+   * Fetches multiple content items, optionally filtered.
+   *
+   * @param array $filters
+   *   Optional filters for the content items (status, project id, language).
+   *
+   * @return mixed
+   *   The decoded response data, or FALSE on failure.
+   */
+  public function getContents(array $filters = []): mixed;
+
+  /**
+   * Fetches a single content item by its contentbird ID.
+   *
+   * @param int $content_id
+   *   The contentbird content ID.
+   * @param string $language
+   *   The language code for the content (e.g. 'en').
+   *
+   * @return mixed
+   *   The decoded response data, or FALSE on failure.
+   */
+  public function getContent(int $content_id, string $language = 'en'): mixed;
+
+  /**
    * Updates an existing content item in contentbird.
    *
    * @param int $content_id
    *   The contentbird content ID.
    * @param array $data
-   *   The fields to update. Possible keys:
-   *   - contentStatusId: (int) The new content status ID.
-   *   - publishedUrl: (string) The published URL of the content.
-   *   - publishedAt: (string) The publish date in ISO-8601 format.
-   *   - title: (string) The content title.
-   *   - content: (string) The content body.
-   *   - customElements: (array) Custom element values.
-   *   - customFields: (array) Custom field values.
+   *   The fields to update. See the createContent() method for possible field keys.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
@@ -138,24 +160,49 @@ interface ContentbirdApiClientInterface {
   public function updateContent(int $content_id, array $data): mixed;
 
   /**
-   * Updates the content status in contentbird.
-   *
-   * This is a convenience method for updating only the status and optional
-   * published URL of a content item.
+   * Updates the content status to published in contentbird.
    *
    * @param int $content_id
    *   The contentbird content ID.
-   * @param int $status_id
-   *   The new content status ID.
-   * @param string|null $published_url
-   *   Optional URL where the content was published.
-   * @param string|null $published_at
-   *   Optional publish date in ISO-8601 format.
+   * @param string $published_url
+   *   The URL where the content was published.
+   * @param string $published_at
+   *   The publish date in ISO-8601 format.
+   * @param float|null $cost
+   *   The cost of the content (optional).
+   * @param int|null $status_id
+   *   Optional content status ID. If not provided, the default published status will be used.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function updateContentStatus(int $content_id, int $status_id, ?string $published_url = NULL, ?string $published_at = NULL): mixed;
+  public function publishContent(int $content_id, string $published_url, string $published_at, ?float $cost = NULL, ?int $status_id = NULL): mixed;
+
+  /**
+   * Updates the content status to unpublished in contentbird.
+   *
+   * @param int $content_id
+   *   The contentbird content ID.
+   * @param int|null $status_id
+   *   Optional content status ID to set when unpublishing. If not provided, the default unpublished status will be used.
+   *
+   * @return mixed
+   *   The decoded response data, or FALSE on failure.
+   */
+  public function unpublishContent(int $content_id, ?int $status_id = NULL): mixed;
+
+  /**
+   * Creates a new version of an existing content item in contentbird.
+   *
+   * @param int $content_id
+   *   The contentbird content ID.
+   * @param array $data
+   *   The content data for the new version. See the createContent() method for possible field keys.
+   *
+   * @return mixed
+   *   The decoded response data, or FALSE on failure.
+   */
+  public function createContentVersion(int $content_id, array $data): mixed;
 
   // ---------------------------------------------------------------------------
   // Social posts
@@ -166,6 +213,17 @@ interface ContentbirdApiClientInterface {
    *
    * @param array $data
    *   The social post data.
+   *   Required keys:
+   *   - project_id: (int) The contentbird project ID to associate with.
+   *   - page_id: (int) The social profile/page ID to post to.
+   *   - language: (string) The post language (e.g. 'en').
+   *   - post_content: (string) The text content of the post.
+   *   Additional optional keys supported:
+   *   - image_attachments: (array) An array of image attachment urls.
+   *   - video_attachments: (array) An array of video attachment urls.
+   *   - promote_url: (string) A URL to promote in the post. Only supported for Facebook and Linkedin.
+   *   - type: (string) The post type (e.g. 'draft', 'publish_at', 'publish_now').
+   *   - publish_at: (string) The scheduled publish date in Unix timestamp format (required if type is 'publish_at').
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
