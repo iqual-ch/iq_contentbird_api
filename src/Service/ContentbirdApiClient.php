@@ -62,7 +62,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function request(string $method, string $endpoint, ?array $query = NULL, ?array $body = NULL): mixed {
+  public function request(string $method, string $endpoint, ?int $project_id = NULL, ?array $query = NULL, ?array $body = NULL): mixed {
     $apiToken = $this->config->get('api_token');
 
     if (empty($apiToken)) {
@@ -72,7 +72,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
 
     $request_options = [
       RequestOptions::HEADERS => [
-        'X-ContentbirdApiToken' => $apiToken,
+        'X-ContentbirdApiToken' => 'Bearer ' . $apiToken,
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
       ],
@@ -141,11 +141,12 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEndpointUrl(string $endpoint_name): string {
+  public function getEndpointUrl(string $endpoint_name, ?int $project_id = NULL): string {
     $base = rtrim($this->config->get('api_base_url'), '/');
-    $endpoints = $this->config->get('api_endpoints') ?? [];
-    $path = $endpoints[$endpoint_name] ?? '';
-    return $base . $path;
+    if ($project_id !== NULL) {
+      $endpoint_name = str_replace('{projectId}', $project_id, $endpoint_name);
+    }
+    return $base . $endpoint_name;
   }
 
   // ---------------------------------------------------------------------------
@@ -155,22 +156,22 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getContentStatuses(): mixed {
-    return $this->request('GET', $this->getEndpointUrl('content_statuses'));
+  public function getListOfIds(): mixed {
+    return $this->request('GET', $this->getEndpointUrl('get-ids'));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCustomElements(): mixed {
-    return $this->request('GET', $this->getEndpointUrl('custom_elements'));
+  public function getProjectKeywords(int $project_id): mixed {
+    return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', $project_id));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCustomFields(): mixed {
-    return $this->request('GET', $this->getEndpointUrl('custom_fields'));
+  public function getProjectSocialProfiles(int $project_id): mixed {
+    return $this->request('GET', $this->getEndpointUrl('get-social-profiles/{projectId}', $project_id));
   }
 
   // ---------------------------------------------------------------------------

@@ -16,6 +16,8 @@ interface ContentbirdApiClientInterface {
    *   The HTTP method (GET, POST, PUT, PATCH, DELETE).
    * @param string $endpoint
    *   The full API endpoint URL.
+   * @param int|null $project_id
+   *   Optional project ID for project-specific requests.
    * @param array|null $query
    *   Optional query parameters.
    * @param array|null $body
@@ -24,46 +26,54 @@ interface ContentbirdApiClientInterface {
    * @return mixed
    *   The decoded JSON response data, or FALSE on failure.
    */
-  public function request(string $method, string $endpoint, ?array $query = NULL, ?array $body = NULL): mixed;
+  public function request(string $method, string $endpoint, ?int $project_id = NULL, ?array $query = NULL, ?array $body = NULL): mixed;
 
   /**
    * Gets the full URL for a named API endpoint.
    *
    * @param string $endpoint_name
-   *   The endpoint name as configured (e.g. 'content', 'content_statuses').
+   *   The endpoint name as configured (e.g. 'get-ids', 'get-keywords/{projectId}').
+   * @param int|null $project_id
+   *   Optional project ID to replace in the endpoint path if needed.
    *
    * @return string
    *   The full URL for the endpoint.
    */
-  public function getEndpointUrl(string $endpoint_name): string;
+  public function getEndpointUrl(string $endpoint_name, ?int $project_id = NULL): string;
 
   // ---------------------------------------------------------------------------
   // Utils
   // ---------------------------------------------------------------------------
 
   /**
-   * Retrieves the available content statuses from contentbird.
+   * Retrieves a list of all IDs the contentbird platform is using for relations.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function getContentStatuses(): mixed;
+  public function getListOfIds(): mixed;
 
   /**
-   * Retrieves the custom elements configuration from contentbird.
+   * Retrieves a list of all keywords (including metrics) of the given project.
+   * 
+   * @param int $project_id
+   *   The contentbird project ID.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function getCustomElements(): mixed;
+  public function getProjectKeywords(int $project_id): mixed;
 
   /**
-   * Retrieves the custom fields configuration from contentbird.
+   * Retrieves a list of all active connected social profiles of the given project.
+   * 
+   * @param int $project_id
+   *   The contentbird project ID.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function getCustomFields(): mixed;
+  public function getProjectSocialProfiles(int $project_id): mixed;
 
   // ---------------------------------------------------------------------------
   // Content operations
