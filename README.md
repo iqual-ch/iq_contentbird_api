@@ -7,13 +7,14 @@ This module provides a configurable API client service and webhook endpoint to i
 ## Features
 
 - **API Token Authentication**: Secure communication via the `X-ContentbirdApiToken` header.
-- **Admin Settings Form**: Configure API token, base URL, and endpoints at `admin/config/services/iq_contentbird_api`.
-- **API Client Service**: Injectable service (`iq_contentbird_api.client`) for communicating with contentbird:
-  - Fetch content statuses, custom elements, and custom fields (Utils).
-  - Create, fetch, and update content items.
-  - Update content status (e.g., "CMS imported", "Published").
-  - Create social posts.
-- **Webhook Endpoint**: Receives push events from contentbird at `/iq_contentbird_api/webhook`.
+- __Admin Settings Form__: Configure API token, base URL, and endpoints at `admin/config/services/iq_contentbird_api`.
+- __API Client Service__: Injectable service (`iq_contentbird_api.client`) for communicating with contentbird:
+   - Fetch content statuses, custom elements, and custom fields (Utils).
+   - Create, fetch, and update content items.
+   - Update content status (e.g., "CMS imported", "Published").
+   - Create social posts.
+
+- __Webhook Endpoint__: Receives push events from contentbird at `/iq_contentbird_api/webhook`.
 - **Event System**: Dispatches `ContentbirdWebhookEvent` so other modules can subscribe and react to webhook events.
 
 ## Requirements
@@ -24,7 +25,7 @@ This module provides a configurable API client service and webhook endpoint to i
 
 ## Installation
 
-1. Place the module in `modules/custom/iq_contentbird_api` or install via Composer.
+1. Install the module via Composer `composer require iqual/iq_contentbird_api`
 2. Enable the module: `drush en iq_contentbird_api`
 3. Navigate to **Admin > Configuration > Web services > Contentbird API Settings**.
 4. Enter your contentbird API token (generated under Setup > System > Integrations > Api authentication in contentbird).
@@ -42,18 +43,6 @@ Generate an API token in contentbird under **Setup > System > Integrations > Api
 2. Configure this URL in your contentbird webhook settings.
 3. Optionally set a webhook secret for payload signature verification.
 
-### API Endpoints
-
-Default endpoints are pre-configured. Adjust only if the contentbird API changes:
-
-| Endpoint | Default Path | Description |
-|---|---|---|
-| Content Statuses | `/content-statuses` | Available content workflow statuses |
-| Custom Elements | `/custom-elements` | Custom element definitions |
-| Custom Fields | `/custom-fields` | Custom field definitions |
-| Content | `/contents` | Content CRUD operations |
-| Social Posts | `/social-posts` | Social post creation |
-
 ## Usage
 
 ### Using the API Client Service
@@ -64,20 +53,20 @@ Inject the service `iq_contentbird_api.client` in your custom code:
     public function __construct(
       private ContentbirdApiClientInterface $contentbirdClient,
     ) {}
-
-    // Fetch content statuses.
-    $statuses = $this->contentbirdClient->getContentStatuses();
-
+    
+    // Fetch list ids.
+    $list_ids = $this->contentbirdClient->getListOfIds();
+    
     // Fetch a single content item.
     $content = $this->contentbirdClient->getContent(12345);
-
-    // Update content status to "CMS imported" (status ID from getContentStatuses).
-    $this->contentbirdClient->updateContentStatus(
+    
+    // Update content status to a published status (status ID from getListOfIds()).
+    $this->contentbirdClient->updateStatusPublishedContent(
       content_id: 12345,
       status_id: 3,
       published_url: 'https://your-site.com/node/42',
     );
-
+    
     // Create a social post.
     $this->contentbirdClient->createSocialPost([
       'contentId' => 12345,
@@ -89,24 +78,24 @@ Inject the service `iq_contentbird_api.client` in your custom code:
 Create an event subscriber in your module:
 
     namespace Drupal\my_module\EventSubscriber;
-
+    
     use Drupal\iq_contentbird_api\Event\ContentbirdWebhookEvent;
     use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-
+    
     class ContentbirdWebhookSubscriber implements EventSubscriberInterface {
-
+    
       public static function getSubscribedEvents() {
         return [
           ContentbirdWebhookEvent::WEBHOOK_RECEIVED => 'onWebhookReceived',
         ];
       }
-
+    
       public function onWebhookReceived(ContentbirdWebhookEvent $event) {
         $data = $event->getData();
         $eventType = $event->getEventType();
         // Process the webhook data, e.g., create/update Drupal nodes.
       }
-
+    
     }
 
 Register the subscriber in your module's services YAML file:

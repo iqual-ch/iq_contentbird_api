@@ -206,7 +206,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function publishContent(int $content_id, string $published_url, string $published_at, ?float $cost = NULL, ?int $status_id = NULL): mixed {
+  public function updateStatusPublishedContent(int $content_id, string $published_url, string $published_at, ?float $cost = NULL, ?int $status_id = NULL): mixed {
     $data = [
       'url' => $published_url,
       'publishedDate' => $published_at,
@@ -224,7 +224,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function unpublishContent(int $content_id, int $status_id): mixed {
+  public function updateStatusUnpublishedContent(int $content_id, int $status_id): mixed {
     $params = [
       'contentId' => $content_id,
       'statusId' => $status_id,

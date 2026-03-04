@@ -160,7 +160,7 @@ interface ContentbirdApiClientInterface {
   public function updateContent(int $content_id, array $data): mixed;
 
   /**
-   * Updates the content status to published in contentbird.
+   * Updates the content status (published) in contentbird.
    *
    * @param int $content_id
    *   The contentbird content ID.
@@ -176,10 +176,10 @@ interface ContentbirdApiClientInterface {
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function publishContent(int $content_id, string $published_url, string $published_at, ?float $cost = NULL, ?int $status_id = NULL): mixed;
+  public function updateStatusPublishedContent(int $content_id, string $published_url, string $published_at, ?float $cost = NULL, ?int $status_id = NULL): mixed;
 
   /**
-   * Updates the content status to unpublished in contentbird.
+   * Updates the content status (unpublished) in contentbird.
    *
    * @param int $content_id
    *   The contentbird content ID.
@@ -189,7 +189,7 @@ interface ContentbirdApiClientInterface {
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function unpublishContent(int $content_id, int $status_id): mixed;
+  public function updateStatusUnpublishedContent(int $content_id, int $status_id): mixed;
 
   /**
    * Creates a new version of an existing content item in contentbird.
