@@ -1,0 +1,15 @@
+iq_contentbird_api.settings:
+  path: 'admin/config/services/iq_contentbird_api'
+  defaults:
+    _form: '\Drupal\iq_contentbird_api\Form\SettingsForm'
+    _title: 'Contentbird API Settings'
+  requirements:
+    _permission: 'administer iq contentbird api'
+
+iq_contentbird_api.webhook:
+  path: 'iq_contentbird_api/webhook'
+  defaults:
+    _controller: '\Drupal\iq_contentbird_api\Controller\WebhookController::handle'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'

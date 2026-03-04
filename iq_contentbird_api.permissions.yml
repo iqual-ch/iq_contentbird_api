@@ -1,0 +1,4 @@
+administer iq contentbird api:
+  title: 'Administer Contentbird API settings'
+  description: 'Configure Contentbird API credentials and endpoint settings.'
+  restrict access: true

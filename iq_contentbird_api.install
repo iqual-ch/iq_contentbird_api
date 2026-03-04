@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the IQ Contentbird API module.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_requirements().
+ */
+function iq_contentbird_api_requirements($phase) {
+  if ($phase !== 'runtime') {
+    return [];
+  }
+
+  $requirements = [];
+  $config = \Drupal::config('iq_contentbird_api.settings');
+  $api_token = $config->get('api_token');
+  $api_base_url = $config->get('api_base_url');
+
+  if (empty($api_token) || empty($api_base_url)) {
+    $settings_url = Url::fromRoute('iq_contentbird_api.settings')->toString();
+    $requirements['iq_contentbird_api'] = [
+      'title' => t('Contentbird API'),
+      'value' => t('Not configured'),
+      'description' => t('The Contentbird API module requires configuration. Please visit the <a href=":url">settings page</a> to configure the API token and base URL.', [
+        ':url' => $settings_url,
+      ]),
+      'severity' => REQUIREMENT_WARNING,
+    ];
+  }
+  else {
+    $requirements['iq_contentbird_api'] = [
+      'title' => t('Contentbird API'),
+      'value' => t('Configured'),
+      'severity' => REQUIREMENT_OK,
+    ];
+  }
+
+  return $requirements;
+}

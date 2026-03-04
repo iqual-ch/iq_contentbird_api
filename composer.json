@@ -1,0 +1,18 @@
+{
+  "name": "iqual/iq_contentbird_api",
+  "type": "drupal-module",
+  "description": "Provides integration with the contentbird Integration API for content management, publishing workflows, and webhook events.",
+  "keywords": [
+    "Drupal",
+    "contentbird",
+    "API",
+    "content management",
+    "CMS integration"
+  ],
+  "homepage": "https://github.com/iqual-ch/iq_contentbird_api",
+  "require": {
+    "drupal/core": "^11",
+    "php": ">=8.3",
+    "guzzlehttp/guzzle": "^7.0"
+  }
+}

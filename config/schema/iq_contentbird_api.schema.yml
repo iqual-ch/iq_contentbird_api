@@ -1,0 +1,32 @@
+iq_contentbird_api.settings:
+  type: config_object
+  label: 'IQ Contentbird API settings'
+  mapping:
+    api_token:
+      type: string
+      label: 'Contentbird API Token'
+    api_base_url:
+      type: string
+      label: 'API Base URL'
+    webhook_secret:
+      type: string
+      label: 'Webhook Secret'
+    api_endpoints:
+      type: mapping
+      label: 'API Endpoints'
+      mapping:
+        content_statuses:
+          type: string
+          label: 'Content Statuses endpoint'
+        custom_elements:
+          type: string
+          label: 'Custom Elements endpoint'
+        custom_fields:
+          type: string
+          label: 'Custom Fields endpoint'
+        content:
+          type: string
+          label: 'Content endpoint'
+        social_post:
+          type: string
+          label: 'Social Post endpoint'

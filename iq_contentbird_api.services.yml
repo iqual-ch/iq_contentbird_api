@@ -1,0 +1,8 @@
+services:
+  iq_contentbird_api.client:
+    class: Drupal\iq_contentbird_api\Service\ContentbirdApiClient
+    arguments:
+      - '@config.factory'
+      - '@logger.factory'
+      - '@http_client'
+      - '@messenger'

@@ -1,0 +1,6 @@
+name: 'IQ Contentbird API'
+type: module
+description: 'Provides integration with the contentbird Integration API for content management, publishing workflows, and webhook events.'
+package: 'Custom'
+core_version_requirement: ^11
+configure: iq_contentbird_api.settings

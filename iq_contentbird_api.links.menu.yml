@@ -1,0 +1,5 @@
+iq_contentbird_api.settings:
+  title: 'Contentbird API Settings'
+  description: 'Configure Contentbird API token and endpoints.'
+  route_name: iq_contentbird_api.settings
+  parent: system.admin_config_services
