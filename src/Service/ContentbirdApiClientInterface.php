@@ -183,13 +183,13 @@ interface ContentbirdApiClientInterface {
    *
    * @param int $content_id
    *   The contentbird content ID.
-   * @param int|null $status_id
-   *   Optional content status ID to set when unpublishing. If not provided, the default unpublished status will be used.
+   * @param int $status_id
+   *   The content status ID to set when unpublishing.
    *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
-  public function unpublishContent(int $content_id, ?int $status_id = NULL): mixed;
+  public function unpublishContent(int $content_id, int $status_id): mixed;
 
   /**
    * Creates a new version of an existing content item in contentbird.

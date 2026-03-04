@@ -81,7 +81,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
     ];
 
     if (!empty($body)) {
-      $request_options[RequestOptions::BODY] = json_encode($body);
+      $request_options[RequestOptions::BODY] = Json::encode($body);
     }
 
     try {
@@ -94,13 +94,13 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
       }
 
       // Handle 401 Unauthorized.
-      if ($statusCode === 401 || str_contains($exception->getMessage(), '401')) {
+      if ($statusCode === 401) {
         $this->logger->error('Authentication failed: Invalid or missing API token. Please verify your Contentbird API token.');
         return FALSE;
       }
 
       // Handle 400 Bad Request.
-      if ($statusCode === 400 || str_contains($exception->getMessage(), '400')) {
+      if ($statusCode === 400) {
         $this->logger->error('Bad request to Contentbird API: @error', [
           '@error' => $exception->getMessage(),
         ]);
@@ -108,7 +108,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
       }
 
       // Handle 404 Not Found.
-      if ($statusCode === 404 || str_contains($exception->getMessage(), '404')) {
+      if ($statusCode === 404) {
         $this->logger->warning('Contentbird API resource not found: @endpoint', [
           '@endpoint' => $endpoint,
         ]);
@@ -118,13 +118,6 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
       $this->logger->error('Contentbird API request failed: @error', [
         '@error' => $exception->getMessage(),
       ]);
-      return FALSE;
-    }
-
-    $statusCode = $response->getStatusCode();
-
-    if ($statusCode === 401) {
-      $this->logger->error('Authentication failed: Invalid or missing API token.');
       return FALSE;
     }
 
@@ -159,21 +152,21 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
    * {@inheritdoc}
    */
   public function getListOfIds(string $language = 'en'): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-ids'), [], ['X-ContentbirdLocale' => $language]);
+    return $this->request('GET', $this->getEndpointUrl('get-ids'), NULL, ['X-ContentbirdLocale' => $language]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getProjectKeywords(int $project_id, string $language = 'en'): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', ['projectId' => $project_id]), [], ['X-ContentbirdLocale' => $language]);
+    return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', ['projectId' => $project_id]), NULL, ['X-ContentbirdLocale' => $language]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getProjectSocialProfiles(int $project_id, string $language = 'en'): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-social-profiles/{projectId}', ['projectId' => $project_id]), [], ['X-ContentbirdLocale' => $language]);
+    return $this->request('GET', $this->getEndpointUrl('get-social-profiles/{projectId}', ['projectId' => $project_id]), NULL, ['X-ContentbirdLocale' => $language]);
   }
 
   // ---------------------------------------------------------------------------
@@ -191,7 +184,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
    * {@inheritdoc}
    */
   public function getContents(array $filters = []): mixed {
-    return $this->request('POST', $this->getEndpointUrl('get-contents'),  $filters);
+    return $this->request('POST', $this->getEndpointUrl('get-contents'), $filters);
   }
 
   /**
@@ -199,7 +192,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
    */
   public function getContent(int $content_id, string $language = 'en'): mixed {
     $url = $this->getEndpointUrl('get-content/{contentId}', ['contentId' => $content_id]);
-    return $this->request('GET', $url, [], ['X-ContentbirdLocale' => $language]);
+    return $this->request('GET', $url, NULL, ['X-ContentbirdLocale' => $language]);
   }
 
   /**
@@ -231,12 +224,12 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function unpublishContent(int $content_id, ?int $status_id = NULL): mixed {
+  public function unpublishContent(int $content_id, int $status_id): mixed {
     $params = [
       'contentId' => $content_id,
       'statusId' => $status_id,
     ];
-    return $this->request('PUT', $this->getEndpointUrl('update-content-status/{contentId}/status/{statusId}', $params), $params);
+    return $this->request('PUT', $this->getEndpointUrl('update-content-status/{contentId}/status/{statusId}', $params));
   }
 
   /**
