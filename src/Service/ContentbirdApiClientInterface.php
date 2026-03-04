@@ -33,7 +33,7 @@ interface ContentbirdApiClientInterface {
    *   The endpoint name as configured (e.g. 'get-ids', 'get-keywords/{projectId}').
    * @param array|null $params
    *   Optional parameters to replace in the endpoint path if needed.
-   * 
+   *
    * @return string
    *   The full URL for the endpoint.
    */
@@ -48,15 +48,43 @@ interface ContentbirdApiClientInterface {
    *
    * @param string $language
    *   The language code for the data (e.g. 'en').
-   * 
+   *
    * @return mixed
    *   The decoded response data, or FALSE on failure.
    */
   public function getListOfIds(string $language = 'en'): mixed;
 
   /**
+   * Retrieves the list of projects from the contentbird platform.
+   *
+   * Convenience wrapper around getListOfIds() that extracts the
+   * 'data.projects' array.
+   *
+   * @param string $language
+   *   The language code for the data (e.g. 'en').
+   *
+   * @return array
+   *   An array of project data, or an empty array on failure.
+   */
+  public function getProjects(string $language = 'en'): array;
+
+  /**
+   * Retrieves the list of content statuses from the contentbird platform.
+   *
+   * Convenience wrapper around getListOfIds() that extracts the
+   * 'data.statuses' array.
+   *
+   * @param string $language
+   *   The language code for the data (e.g. 'en').
+   *
+   * @return array
+   *   An array of status data, or an empty array on failure.
+   */
+  public function getStatuses(string $language = 'en'): array;
+
+  /**
    * Retrieves a list of all keywords (including metrics) of the given project.
-   * 
+   *
    * @param int $project_id
    *   The contentbird project ID.
    * @param string $language
@@ -69,7 +97,7 @@ interface ContentbirdApiClientInterface {
 
   /**
    * Retrieves a list of all active connected social profiles of the given project.
-   * 
+   *
    * @param int $project_id
    *   The contentbird project ID.
    * @param string $language

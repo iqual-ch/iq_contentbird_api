@@ -158,6 +158,28 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
+  public function getProjects(string $language = 'en'): array {
+    $result = $this->getListOfIds($language);
+    if ($result === FALSE || !isset($result['data']['projects'])) {
+      return [];
+    }
+    return $result['data']['projects'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStatuses(string $language = 'en'): array {
+    $result = $this->getListOfIds($language);
+    if ($result === FALSE || !isset($result['data']['statuses'])) {
+      return [];
+    }
+    return $result['data']['statuses'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getProjectKeywords(int $project_id, string $language = 'en'): mixed {
     return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', ['projectId' => $project_id]), NULL, ['X-ContentbirdLocale' => $language]);
   }
