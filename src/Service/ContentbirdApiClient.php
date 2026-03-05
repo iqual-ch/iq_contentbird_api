@@ -284,7 +284,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   }
 
   // ---------------------------------------------------------------------------
-o  // HTTP client access
+  // HTTP client access
   // ---------------------------------------------------------------------------
 
   /**
