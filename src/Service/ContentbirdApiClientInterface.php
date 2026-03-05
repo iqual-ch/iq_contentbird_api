@@ -83,6 +83,21 @@ interface ContentbirdApiClientInterface {
   public function getStatuses(string $language = 'en'): array;
 
   /**
+   * Retrieves the list of content types (tools) from the contentbird platform.
+   *
+   * Convenience wrapper around getListOfIds() that extracts the
+   * 'data.types' array. Each type represents a content format such as
+   * Wiki, Facebook post, News article, etc.
+   *
+   * @param string $language
+   *   The language code for the data (e.g. 'en').
+   *
+   * @return array
+   *   An array of type data, or an empty array on failure.
+   */
+  public function getTypes(string $language = 'en'): array;
+
+  /**
    * Retrieves a list of all keywords (including metrics) of the given project.
    *
    * @param int $project_id

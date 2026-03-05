@@ -180,6 +180,17 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   /**
    * {@inheritdoc}
    */
+  public function getTypes(string $language = 'en'): array {
+    $result = $this->getListOfIds($language);
+    if ($result === FALSE || !isset($result['data']['types'])) {
+      return [];
+    }
+    return $result['data']['types'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getProjectKeywords(int $project_id, string $language = 'en'): mixed {
     return $this->request('GET', $this->getEndpointUrl('get-keywords/{projectId}', ['projectId' => $project_id]), NULL, ['X-ContentbirdLocale' => $language]);
   }
@@ -188,7 +199,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
    * {@inheritdoc}
    */
   public function getProjectSocialProfiles(int $project_id, string $language = 'en'): mixed {
-    return $this->request('GET', $this->getEndpointUrl('get-social-profiles/{projectId}', ['projectId' => $project_id]), NULL, ['X-ContentbirdLocale' => $language]);
+    return $this->request('GET', $this->getEndpointUrl('get-social-integrations/{projectId}', ['projectId' => $project_id]), NULL, ['X-ContentbirdLocale' => $language]);
   }
 
   // ---------------------------------------------------------------------------
@@ -273,7 +284,7 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   }
 
   // ---------------------------------------------------------------------------
-  // HTTP client access
+o  // HTTP client access
   // ---------------------------------------------------------------------------
 
   /**
