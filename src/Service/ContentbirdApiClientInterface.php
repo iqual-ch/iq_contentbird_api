@@ -39,6 +39,14 @@ interface ContentbirdApiClientInterface {
    */
   public function getEndpointUrl(string $endpoint_name, ?array $params = NULL): string;
 
+  /**
+   * Gets the list of available social post statuses.
+   *
+   * @return array
+   *   An associative array of status machine names and their human-readable labels.
+   */
+  public function getSocialPostStatuses(): array;
+
   // ---------------------------------------------------------------------------
   // Utils
   // ---------------------------------------------------------------------------

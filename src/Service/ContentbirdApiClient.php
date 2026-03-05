@@ -24,6 +24,16 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
   use StringTranslationTrait;
 
   /**
+   * Summary of SOCIAL_POST_STATUSES
+   * @var array
+   */
+  private const array SOCIAL_POST_STATUSES = [
+    'draft' => 'Draft',
+    'publish_at' => 'Publish At',
+    'publish_now' => 'Publish Now',
+  ];
+
+  /**
    * The logger channel.
    *
    * @var \Drupal\Core\Logger\LoggerChannelInterface
@@ -142,6 +152,13 @@ class ContentbirdApiClient implements ContentbirdApiClientInterface {
       }
     }
     return $base . '/' . $endpoint_name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSocialPostStatuses(): array {
+    return self::SOCIAL_POST_STATUSES;
   }
 
   // ---------------------------------------------------------------------------
